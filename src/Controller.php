@@ -1,7 +1,6 @@
 <?php
 
-// This Add-on's unique namespace
-namespace WP2StaticBoilerplate;
+namespace WP2StaticS3cmd;
 
 /**
  * Controller class
@@ -30,7 +29,7 @@ class Controller {
 
         // calls our options save handler when POSTing from Add-on's options view
         add_action(
-            'admin_post_wp2static_boilerplate_save_options',
+            'admin_post_wp2static_s3cmd_save_options',
             [ $this, 'saveOptionsFromUI' ],
             15,
             1
@@ -44,18 +43,19 @@ class Controller {
             2
         );
 
-        // function to run after deployment (ie, cache invalidation, Slack notification)
-        add_action(
-            'wp2static_post_deploy_trigger',
-            [ 'WP2StaticBoilerplate\Boilerplate', 'post_deployment_action' ],
-            15,
-            2
+        do_action(
+            'wp2static_register_addon',
+            'wp2static-addon-s3cmd',
+            'deploy',
+            'S3cmd Deployment',
+            'https://github.com/jzarza-np/wp2static-addon-s3cmd',
+            'Deploys to any S3 Object Storage using s3cmd'
         );
 
         if ( defined( 'WP_CLI' ) ) {
             \WP_CLI::add_command(
-                'wp2static boilerplate',
-                [ 'WP2StaticBoilerplate\CLI', 'boilerplate' ]
+                'wp2static s3cmd',
+                [ 'WP2StaticS3cmd\CLI', 's3cmd' ]
             );
         }
     }
@@ -71,7 +71,7 @@ class Controller {
         global $wpdb;
         $options = [];
 
-        $table_name = $wpdb->prefix . 'wp2static_addon_boilerplate_options';
+        $table_name = $wpdb->prefix . 'wp2static_addon_s3cmd_options';
 
         $rows = $wpdb->get_results( "SELECT * FROM $table_name" );
 
@@ -90,16 +90,26 @@ class Controller {
     public static function seedOptions() : void {
         global $wpdb;
 
-        $table_name = $wpdb->prefix . 'wp2static_addon_boilerplate_options';
+        $table_name = $wpdb->prefix . 'wp2static_addon_s3cmd_options';
 
         $query_string =
             "INSERT INTO $table_name (name, value, label, description) VALUES (%s, %s, %s, %s);";
 
         $query = $wpdb->prepare(
             $query_string,
-            'aRegularOption',
+            's3Endpoint',
             '',
-            'A regular option',
+            'S3 Endpoint',
+            'Hostname of your S3'
+        );
+
+        $wpdb->query( $query );
+
+        $query = $wpdb->prepare(
+            $query_string,
+            's3Bucket',
+            '',
+            'Bucket name',
             ''
         );
 
@@ -107,9 +117,39 @@ class Controller {
 
         $query = $wpdb->prepare(
             $query_string,
-            'anEncryptedOption',
+            's3AccessKeyID',
             '',
-            'An encrypted option',
+            'Access Key ID',
+            ''
+        );
+
+        $wpdb->query( $query );
+
+        $query = $wpdb->prepare(
+            $query_string,
+            's3SecretAccessKey',
+            '',
+            'Secret Access Key',
+            ''
+        );
+
+        $wpdb->query( $query );
+
+        $query = $wpdb->prepare(
+            $query_string,
+            'deploying',
+            '0',
+            '',
+            ''
+        );
+
+        $wpdb->query( $query );
+
+        $query = $wpdb->prepare(
+            $query_string,
+            'queue',
+            '0',
+            '',
             ''
         );
 
@@ -126,7 +166,7 @@ class Controller {
     public static function saveOption( string $name, $value ) : void {
         global $wpdb;
 
-        $table_name = $wpdb->prefix . 'wp2static_addon_boilerplate_options';
+        $table_name = $wpdb->prefix . 'wp2static_addon_s3cmd_options';
 
         $wpdb->update(
             $table_name,
@@ -142,11 +182,11 @@ class Controller {
      * configurable options, it's expected to register an options page with WP2Static Core
      * which will link to them from the Add-ons page
      */
-    public static function renderBoilerplatePage() : void {
+    public static function renderS3cmdPage() : void {
         // template variables for the Add-on's options page
         $view = [];
         // nonce used to validate any POSTing from the Add-ons options page
-        $view['nonce_action'] = 'wp2static-boilerplate-options';
+        $view['nonce_action'] = 'wp2static-s3cmd-options';
 
         // get some SiteInfo from WP2Static core plugin
         $view['uploads_path'] = \WP2Static\SiteInfo::getPath( 'uploads' );
@@ -162,20 +202,37 @@ class Controller {
      * is to perform anything on the `deploy` phase of WP2Static workflow
      */
     public function deploy( string $processed_site_path, string $enabled_deployer ) : void {
-        if ( $enabled_deployer !== 'wp2static-addon-boilerplate' ) {
+        global $wpdb;
+        if ( $enabled_deployer !== 'wp2static-addon-s3cmd' ) {
+            return;
+        }
+        
+        \WP2Static\WsLog::l( 'S3cmd Addon deploying' );
+
+        if ( ! is_dir( $processed_site_path ) ) {
+            \WP2Static\WsLog::l( 'Empty path, aborting' );
             return;
         }
 
-        \WP2Static\WsLog::l( 'Boilerplate Addon deploying' );
+        $deploying = $this->getValue('deploying');
 
-        $boilerplate_deployer = new Boilerplate();
-        $boilerplate_deployer->upload_files( $processed_site_path );
+
+        $s3Endpoint = $this->getValue( 's3Endpoint' );
+        $s3Bucket = $this->getValue( 's3Bucket' );
+        $s3AccessKeyID = $this->getValue( 's3AccessKeyID' );
+        $s3SecretAccessKey = $this->getValue( 's3SecretAccessKey' );
+
+        $cmd = 'php '.__DIR__.'/Deployer.php ';
+        $cmd.= DB_HOST.' '.DB_USER.' '.DB_PASSWORD.' '.DB_NAME.' '.$wpdb->prefix.' ';
+        $cmd.= $s3Endpoint.' '.$s3Bucket.' '.$s3AccessKeyID.' '.$s3SecretAccessKey.' '.$processed_site_path;
+        $cmd.= ' > /dev/null 2>/dev/null &';        
+        shell_exec($cmd);
     }
 
     public static function activate_for_single_site() : void {
         global $wpdb;
 
-        $table_name = $wpdb->prefix . 'wp2static_addon_boilerplate_options';
+        $table_name = $wpdb->prefix . 'wp2static_addon_s3cmd_options';
 
         $charset_collate = $wpdb->get_charset_collate();
 
@@ -199,17 +256,17 @@ class Controller {
          * Check that Add-ons required options have been initialized
          * or seed default options
         */
-        if ( ! isset( $options['aRegularOption'] ) ) {
+        if ( ! isset( $options['s3SecretAccessKey'] ) ) {
             self::seedOptions();
         }
 
         do_action(
             'wp2static_register_addon', // hook fired from WP2Static
-            'wp2static-addon-boilerplate', // this plugin's slug
+            'wp2static-addon-s3cmd', // this plugin's slug
             'deploy', // type of add-on we're registering
-            'Boilerplate Demonstration', // Add-on name
-            'https://github.com/WP2Static/wp2static-addon-boilerplate', // docs URL
-            'Plugin to serve as developer reference' // description
+            'S3cmd deployment', // Add-on name
+            'https://github.com/jzarza-np/wp2static-addon-s3cmd', // docs URL
+            'Plugin to deploy to any compatible S3 object storage' // description
         );
     }
 
@@ -267,32 +324,37 @@ class Controller {
     }
 
     public static function saveOptionsFromUI() : void {
-        check_admin_referer( 'wp2static-boilerplate-options' );
+        check_admin_referer( 'wp2static-s3cmd-options' );
 
         global $wpdb;
 
-        $table_name = $wpdb->prefix . 'wp2static_addon_boilerplate_options';
-
-        $an_encrypted_option =
-            $_POST['anEncryptedOption'] ?
-            \WP2Static\CoreOptions::encrypt_decrypt(
-                'encrypt',
-                sanitize_text_field( $_POST['anEncryptedOption'] )
-            ) : '';
+        $table_name = $wpdb->prefix . 'wp2static_addon_s3cmd_options';
 
         $wpdb->update(
             $table_name,
-            [ 'value' => $an_encrypted_option ],
-            [ 'name' => 'anEncryptedOption' ]
+            [ 'value' => sanitize_text_field( $_POST['s3Endpoint'] ) ],
+            [ 'name' => 's3Endpoint' ]
         );
 
         $wpdb->update(
             $table_name,
-            [ 'value' => sanitize_text_field( $_POST['aRegularOption'] ) ],
-            [ 'name' => 'aRegularOption' ]
+            [ 'value' => sanitize_text_field( $_POST['s3Bucket'] ) ],
+            [ 'name' => 's3Bucket' ]
         );
 
-        wp_safe_redirect( admin_url( 'admin.php?page=wp2static-addon-boilerplate' ) );
+        $wpdb->update(
+            $table_name,
+            [ 'value' => sanitize_text_field( $_POST['s3AccessKeyID'] ) ],
+            [ 'name' => 's3AccessKeyID' ]
+        );
+
+        $wpdb->update(
+            $table_name,
+            [ 'value' => sanitize_text_field( $_POST['s3SecretAccessKey'] ) ],
+            [ 'name' => 's3SecretAccessKey' ]
+        );
+
+        wp_safe_redirect( admin_url( 'admin.php?page=wp2static-addon-s3cmd' ) );
         exit;
     }
 
@@ -304,7 +366,7 @@ class Controller {
     public static function getValue( string $name ) : string {
         global $wpdb;
 
-        $table_name = $wpdb->prefix . 'wp2static_addon_boilerplate_options';
+        $table_name = $wpdb->prefix . 'wp2static_addon_s3cmd_options';
 
         $sql = $wpdb->prepare(
             "SELECT value FROM $table_name WHERE" . ' name = %s LIMIT 1',
@@ -328,11 +390,11 @@ class Controller {
     public function addOptionsPage() : void {
         add_submenu_page(
             'null', // don't add within WP2Static menu directly
-            'Boilerplate Deployment Options', // page name / title
-            'Boilerplate Deployment Options', // page name / title
+            'S3cmd Deployment Options', // page name / title
+            'S3cmd Deployment Options', // page name / title
             'manage_options', // user level required to access page
-            'wp2static-addon-boilerplate', // page slug
-            [ $this, 'renderBoilerplatePage' ] // function to render page
+            'wp2static-addon-s3cmd', // page slug
+            [ $this, 'renderS3cmdPage' ] // function to render page
         );
     }
 
@@ -343,7 +405,7 @@ class Controller {
     public function setActiveParentMenu() : void {
             global $plugin_page;
 
-        if ( 'wp2static-addon-boilerplate' === $plugin_page ) {
+        if ( 'wp2static-addon-s3cmd' === $plugin_page ) {
             // phpcs:ignore
             $plugin_page = 'wp2static-options';
         }

@@ -1,25 +1,25 @@
 <?php
 
-namespace WP2StaticBoilerplate;
+namespace WP2StaticS3cmd;
 
 use WP_CLI;
 
 /**
- * WP2StaticBoilerplate WP-CLI commands
+ * WP2StaticS3cmd WP-CLI commands
  *
- * Registers WP-CLI commands for WP2StaticBoilerplate under main wp2static cmd
+ * Registers WP-CLI commands for WP2StaticS3cmd under main wp2static cmd
  *
- * Usage: wp wp2static boilerplate options set aRegularOption 'Some value'
+ * Usage: wp wp2static s3cmd options set aRegularOption 'Some value'
  */
 class CLI {
 
     /**
-     * Boilerplate add-on commands
+     * S3cmd add-on commands
      *
      * @param string[] $args CLI args
      * @param string[] $assoc_args CLI args
      */
-    public function boilerplate(
+    public function s3cmd(
         array $args,
         array $assoc_args
     ) : void {
@@ -43,15 +43,7 @@ class CLI {
                     return;
                 }
 
-                // decrypt encrypted values
-                if ( $option_name === 'anEncryptedOption' ) {
-                    $option_value = \WP2Static\CoreOptions::encrypt_decrypt(
-                        'decrypt',
-                        Controller::getValue( $option_name )
-                    );
-                } else {
-                    $option_value = Controller::getValue( $option_name );
-                }
+                $option_value = Controller::getValue( $option_name );
 
                 WP_CLI::line( $option_value );
             }
@@ -68,26 +60,11 @@ class CLI {
                     $option_value = '';
                 }
 
-                // decrypt an encrypted option
-                if ( $option_name === 'anEncryptedOption' ) {
-                    $option_value = \WP2Static\CoreOptions::encrypt_decrypt(
-                        'encrypt',
-                        $option_value
-                    );
-                }
-
                 Controller::saveOption( $option_name, $option_value );
             }
 
             if ( $arg === 'list' ) {
                 $options = Controller::getOptions();
-
-                // decrypt encrypted values
-                $options['anEncryptedOption']->value = \WP2Static\CoreOptions::encrypt_decrypt(
-                    'decrypt',
-                    $options['anEncryptedOption']->value
-                );
-
                 WP_CLI\Utils\format_items(
                     'table',
                     $options,

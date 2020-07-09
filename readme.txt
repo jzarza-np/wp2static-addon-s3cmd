@@ -1,27 +1,27 @@
 === Plugin Name ===
-Contributors: leonstafford
-Tags: wp2static,boilerplate,static
+Contributors: jzarza-np
+Tags: wp2static,s3cmd,static
 Requires at least: 3.2
 Tested up to: 5.4.1
-Stable tag: 1.0-alpha-001
+Stable tag: 0.1
 License: Unlicense
 License URI: http://unlicense.org
 
-Boilerplate Add-on plugin example for WP2Static
+Adds support to wp2static for any S3 object storage using s3cmd.
 
 == Description ==
 
-Serves as an example reference for developers to create their own WP2Static Add-on or utilize some of the actions/filters.
+Easy way to move your static site to any object storage supporting S3 protocol, thanks to s3cmd.
 
 == Installation ==
 
 Upload the ZIP to your WordPress plugins page within your dashboard.
 
-Activate the plugin, then navigate to your WP2Static > Boilerplate to see
+Activate the plugin, then navigate to your WP2Static > S3cmd to see
  the new deployment option available.
 
 == Changelog ==
 
-= 1.0 =
+= 0.1 =
 
 First release

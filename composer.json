@@ -1,21 +1,21 @@
 {
-    "name": "wp2static/wp2static-addon-boilerplate",
-    "description": "Boilerplate Add-on for WP2Static.",
+    "name": "wp2static/wp2static-addon-s3cmd",
+    "description": "S3cmd Add-on for WP2Static.",
     "homepage": "https://wp2static.com",
       "license": "UNLICENSE",
       "authors": [
         {
-          "name": "Leon Stafford",
-          "email": "me@ljs.dev",
-          "homepage": "https://ljs.dev"
+          "name": "Javier Zarza",
+          "email": "javier@norrispalmer.com",
+          "homepage": "https://norrispalmer.com"
         }
       ],
     "type": "wordpress-plugin",
     "support": {
-        "issues": "https://github.com/WP2Static/wp2static-addon-boilerplate/issues",
+        "issues": "https://github.com/jzarza-np/wp2static-addon-s3cmd/issues",
         "forum": "https://forum.wp2static.com",
         "docs": "https://wp2static.com",
-        "source": "https://github.com/WP2Static/wp2static-addon-boilerplate"
+        "source": "https://github.com/jzarza-np/wp2static-addon-s3cmd"
     },
     "repositories": [
     ],
@@ -35,13 +35,13 @@
     },
     "autoload": {
         "psr-4": {
-            "WP2StaticBoilerplate\\": "src/"
+            "WP2StaticS3cmd\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
             "PHPStan\\WordPress\\": "tests/phpstan/",
-            "WP2StaticBoilerplate\\": "src/"
+            "WP2StaticS3cmd\\": "src/"
         }
     },
     "config": {

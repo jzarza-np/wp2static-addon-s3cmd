@@ -2,7 +2,7 @@
 
 ######################################
 ##
-## Build WP2Static Boilerplate Addon
+## Build WP2Static S3cmd Addon
 ##
 ## script archive_name dont_minify
 ##
@@ -17,8 +17,8 @@ TMP_DIR=$HOME/plugintmp
 rm -Rf $TMP_DIR
 mkdir -p $TMP_DIR
 
-rm -Rf $TMP_DIR/wp2static-addon-boilerplate
-mkdir $TMP_DIR/wp2static-addon-boilerplate
+rm -Rf $TMP_DIR/wp2static-addon-s3cmd
+mkdir $TMP_DIR/wp2static-addon-s3cmd
 
 
 # clear dev dependencies
@@ -28,11 +28,11 @@ composer install --no-dev --optimize-autoloader
 
 
 # cp all required sources to build dir
-cp -r $EXEC_DIR/*.php $TMP_DIR/wp2static-addon-boilerplate/
-cp -r $EXEC_DIR/src $TMP_DIR/wp2static-addon-boilerplate/
-cp -r $EXEC_DIR/vendor $TMP_DIR/wp2static-addon-boilerplate/
-cp -r $EXEC_DIR/README.txt $TMP_DIR/wp2static-addon-boilerplate/
-cp -r $EXEC_DIR/views $TMP_DIR/wp2static-addon-boilerplate/
+cp -r $EXEC_DIR/*.php $TMP_DIR/wp2static-addon-s3cmd/
+cp -r $EXEC_DIR/src $TMP_DIR/wp2static-addon-s3cmd/
+cp -r $EXEC_DIR/vendor $TMP_DIR/wp2static-addon-s3cmd/
+cp -r $EXEC_DIR/README.txt $TMP_DIR/wp2static-addon-s3cmd/
+cp -r $EXEC_DIR/views $TMP_DIR/wp2static-addon-s3cmd/
 
 cd $TMP_DIR
 
@@ -42,10 +42,10 @@ find . -type f -exec chmod 644 {} \;
 
 # strip comments and whitespace from each PHP file
 if [ -z "$2" ]; then
-  find .  ! -name 'wp2static-addon-boilerplate.php' -name \*.php -exec $EXEC_DIR/tools/compress_php_file {} \;
+  find .  ! -name 'wp2static-addon-s3cmd.php' -name \*.php -exec $EXEC_DIR/tools/compress_php_file {} \;
 fi
 
-zip -r -9 ./$1.zip ./wp2static-addon-boilerplate
+zip -r -9 ./$1.zip ./wp2static-addon-s3cmd
 
 cd -
 

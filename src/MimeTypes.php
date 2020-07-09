@@ -1,6 +1,6 @@
 <?php
 
-namespace WP2StaticBoilerplate;
+namespace WP2StaticS3cmd;
 
 class MimeTypes {
     /*
@@ -227,7 +227,7 @@ class MimeTypes {
             'eot' => 'application/vnd.ms-fontobject',
             'eps' => 'application/postscript',
             'epub' => 'application/epub+zip',
-            'eboilerplate' => 'application/vnd.eszigno3+xml',
+            'es3cmd' => 'application/vnd.eszigno3+xml',
             'esa' => 'application/vnd.osgi.subsystem',
             'esf' => 'application/vnd.epson.esf',
             'et3' => 'application/vnd.eszigno3+xml',
@@ -533,7 +533,7 @@ class MimeTypes {
             'ntf' => 'application/vnd.nitf',
             'nzb' => 'application/x-nzb',
             'oa2' => 'application/vnd.fujitsu.oasys2',
-            'oa3' => 'application/vnd.fujitsu.oasyboilerplate',
+            'oa3' => 'application/vnd.fujitsu.oasys3cmd',
             'oas' => 'application/vnd.fujitsu.oasys',
             'obd' => 'application/x-msbinder',
             'obj' => 'application/x-tgif',
@@ -690,7 +690,7 @@ class MimeTypes {
             'rtf' => 'application/rtf',
             'rtx' => 'text/richtext',
             's' => 'text/x-asm',
-            'boilerplatem' => 'audio/boilerplatem',
+            's3cmdm' => 'audio/s3cmdm',
             'saf' => 'application/vnd.yamaha.smaf-audio',
             'sbml' => 'application/sbml+xml',
             'sc' => 'application/vnd.ibm.secure-container',

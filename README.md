@@ -1,9 +1,18 @@
-Boilerplate Add-on plugin example for WP2Static
-===============================================
+S3cmd Add-on plugin for WP2Static
+=================================
 
-Serves as an example reference for developers to create their own WP2Static Add-on or utilize some of the actions/filters.
+Version 0.1
+---
+Working fully. 
 
-[![CircleCI](https://circleci.com/gh/WP2Static/wp2static-addon-boilerplate.svg?style=svg)](https://circleci.com/gh/WP2Static/wp2static-addon-boilerplate)
+It should be improved saving the S3 Secret Key crypted, or even better, letting S3 keys fields empty to use ENV vars.
+
+Requirements
+============
+
+- PHP 7 (with CLI)
+- S3cmd installed
+
 
 Development
 ===========
@@ -11,17 +20,3 @@ Development
 
 `composer install`
 
-Building
-========
-
-`composer build INSTALLER_NAME COMPRESS_PHP_FILES`
-
-Testing
-=======
-
-`composer test`
-
-Example Add-ons
-===============
-
-Official [WP2Static Add-ons](https://wp2static.com/addons).
